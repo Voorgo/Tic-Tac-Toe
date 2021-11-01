@@ -13,15 +13,19 @@ const winCombos = [
 ]
 
 const cells = document.querySelectorAll('.cell')
-//When replay button is clicked, do this
+let replay = document.querySelector("#replay")
+replay.addEventListener('click', startGame)
+let hardcore = document.querySelector('#hardcore')
+hardcore.addEventListener('click', hardcoreFunc)
 startGame();
 function startGame() {
+    document.querySelector('html').style.mixBlendMode = 'normal'
     document.querySelector('.endgame').style.display = 'none';
-    //Create arr from 0 to 9
     origBoard = [...Array(9).keys()]
     for(let i = 0; i < cells.length; i++) {
         cells[i].innerText = '';
         cells[i].style.removeProperty('background')
+        cells[i].removeEventListener('click', turnClick2)
         cells[i].addEventListener('click',turnClick)
     }
 }
@@ -32,7 +36,7 @@ function turnClick(event) {
         if(!checkWin(origBoard, humPlayer) && !checkTie()) {
             setTimeout(function() {
             turn(bestSpot(), aiPlayer)
-           }, 200)
+           }, 50)
     }
     
 }
@@ -53,9 +57,7 @@ function checkWin(board, player) {
       for(let [index, win] of winCombos.entries()) {
           if(win.every(elem => plays.indexOf(elem) > -1)) {
               gameWon = {index: index, player: player};
-              break;
-              
-              
+              break;    
           }
       }
       return gameWon;
@@ -84,6 +86,7 @@ function emptySquare() {
 function bestSpot() {
     let rand =  Math.floor(Math.random() * emptySquare().length);
     return emptySquare()[rand]
+    // return minmax(origBoard, aiPlayer).index;
 }
 
 function checkTie() {
@@ -97,3 +100,81 @@ function checkTie() {
     }
     return false
 }
+
+function minimax(newBoard, player) {
+    let availSpots = emptySquare()
+
+    if(checkWin(newBoard,  humPlayer)) {
+        return {score: -10}
+    }
+    else if(checkWin(newBoard, aiPlayer)) {
+        return {score: 10};
+    }
+    else if(availSpots.length === 0) {
+        return {score: 0};
+    }
+
+    const moves = [];
+    for(let i = 0; i < availSpots.length; i++) {
+        const move = {}
+        move.index = availSpots[i];
+        newBoard[availSpots[i]]  = player;
+
+        if(player == aiPlayer) {
+            const result = minimax(newBoard, humPlayer)
+            move.score = result.score;
+        }
+        else {
+            const result = minimax(newBoard, aiPlayer);
+             move.score = result.score; 
+        }
+        newBoard[availSpots[i]] = move.index;
+        moves.push(move);
+    }
+    let bestMove;
+    if(player == aiPlayer) {
+        let bestScore = -1000;
+        for(let i = 0; i < moves.length; i++) {
+            if(moves[i].score > bestScore) {
+                bestScore = moves[i].score;
+                bestMove = i;
+            }
+        }
+    }
+    else {
+        let bestScore = 1000;
+        for(let i = 0; i < moves.length; i++) {
+            if(moves[i].score < bestScore) {
+                bestScore = moves[i].score;
+                bestMove = i;
+            }
+        }
+    }
+    return moves[bestMove]
+}
+
+function hardcoreFunc() {
+    document.querySelector('.endgame').style.display = 'none';
+    origBoard = [...Array(9).keys()];
+    document.querySelector('html').style.mixBlendMode = 'difference'
+    for(let i = 0; i < cells.length; i++) {
+        cells[i].innerText = '';
+        cells[i].style.removeProperty('background')
+        cells[i].addEventListener('click',turnClick2)
+    }
+}
+
+function turnClick2(event) {
+    if(typeof origBoard[event.target.id] == 'number') {
+        turn(event.target.id, humPlayer)
+        if(!checkWin(origBoard, humPlayer) && !checkTie()) {
+            setTimeout(function() {
+            turn(bestSpot2(), aiPlayer)
+           }, 50)
+    }
+}
+
+    function bestSpot2() {
+    return minimax(origBoard, aiPlayer).index;
+}
+}   
