@@ -1,5 +1,7 @@
 body {
-  background-color: rgb(158, 145, 170);
+  background-color: rgb(255, 255, 255);
+  font-family: "Irish Grover", cursive;
+  width: 100%;
 }
 
 td {
@@ -46,4 +48,30 @@ table tr td:last-child {
   font-size: 2rem;
   text-align: center;
   transform: translate(-50%, -50%);
+}
+
+button {
+  min-width: 90px;
+  height: 30px;
+  outline: none;
+  cursor: pointer;
+  border: none;
+  background-color: rgb(62, 180, 189);
+  font-size: 1.3rem;
+  color: white;
+  border-radius: 2px;
+}
+
+@media (max-width: 600px) {
+  td {
+    width: 70px;
+    height: 70px;
+    font-size: 40px;
+  }
+  table {
+    min-width: 250px;
+  }
+  .endgame {
+    font-size: 1.6rem;
+  }
 }
